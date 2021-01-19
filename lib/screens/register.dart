@@ -5,6 +5,7 @@ import 'package:ChatApp/screens/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:ChatApp/brain.dart';
 
 class Register extends StatefulWidget {
   static String id = 'register';
@@ -14,9 +15,11 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   final _auth = FirebaseAuth.instance;
+  Brain brain = new Brain();
   bool showSpinner = false;
   String email;
   String password;
+  String username;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +44,17 @@ class _RegisterState extends State<Register> {
               ),
               SizedBox(
                 height: 48.0,
+              ),
+              TextField(
+                textAlign: TextAlign.center,
+                onChanged: (value) {
+                  username = value;
+                },
+                decoration:
+                    kTextFieldDecoration.copyWith(hintText: 'Enter Username'),
+              ),
+              SizedBox(
+                height: 8.0,
               ),
               TextField(
                 keyboardType: TextInputType.emailAddress,
@@ -70,6 +84,11 @@ class _RegisterState extends State<Register> {
                 title: 'Register',
                 colour: Colors.blueAccent,
                 onPressed: () async {
+                  Map<String, String> userData = {
+                    "name": username,
+                    "email": email,
+                  };
+
                   setState(() {
                     showSpinner = true;
                   });
@@ -78,6 +97,7 @@ class _RegisterState extends State<Register> {
                         email: email, password: password);
                     if (newUser != null) {
                       Navigator.pushNamed(context, Contacts.id);
+                      brain.uploadUser(userData);
                     }
 
                     setState(() {

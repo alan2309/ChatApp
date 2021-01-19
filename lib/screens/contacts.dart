@@ -1,3 +1,4 @@
+import 'package:ChatApp/brain.dart';
 import 'package:ChatApp/screens/listtile.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,8 @@ class Contacts extends StatefulWidget {
 }
 
 class _ContactsState extends State<Contacts> {
+  String searchUser;
+  Brain brain = new Brain();
   TextEditingController searchTextEditingController =
       new TextEditingController();
   @override
@@ -67,30 +70,32 @@ class _ContactsState extends State<Contacts> {
                           ),
                         ),
                       ),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.green[100],
-                          border: Border.all(color: Colors.black54),
-                          borderRadius: BorderRadius.circular(20),
+                      GestureDetector(
+                        onTap: () {
+                          brain
+                              .getUser(searchTextEditingController.text)
+                              .then((val) {
+                            searchUser = val.toString();
+                          });
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.green[100],
+                            border: Border.all(color: Colors.black54),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: EdgeInsets.all(5),
+                          child: Image.asset('assets/images/search.png'),
                         ),
-                        padding: EdgeInsets.all(5),
-                        child: Image.asset('assets/images/search.png'),
                       ),
                     ],
                   ),
                 ),
-                Tile(),
-                Tile(),
-                Tile(),
-                Tile(),
-                Tile(),
-                Tile(),
-                Tile(),
-                Tile(),
-                Tile(),
-                Tile(),
+                Tile(
+                  username: searchUser,
+                ),
               ],
             ),
           ),

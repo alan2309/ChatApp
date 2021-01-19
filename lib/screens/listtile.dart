@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Tile extends StatelessWidget {
+  String username;
+  Tile({this.username});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -11,7 +13,7 @@ class Tile extends StatelessWidget {
       ),
       margin: EdgeInsets.symmetric(vertical: 10),
       child: ListTile(
-        title: Text('username'),
+        title: Text(username),
         subtitle: Text('sub'),
         leading: Container(
           width: 50,
