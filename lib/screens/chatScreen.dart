@@ -94,23 +94,24 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                      child: ClipOval(
-                    child: Material(
-                      color: Colors.white, // button color
-                      child: InkWell(
-                        onTap: () {},
-                        splashColor: Colors.red, // inkwell color
-                        child: SizedBox(
-                            width: 56,
-                            height: 56,
-                            child: Container(
-                              padding: EdgeInsets.all(10),
-                              child: Image.asset('assets/images/direct.png'),
-                            )),
-                      ),
-                    ),
-                  )),
+                  // Container(
+                  //     child: ClipOval(
+                  //   child: Material(
+                  //     color: Colors.white, // button color
+                  //     child: InkWell(
+                  //       onTap: () {},
+                  //       splashColor: Colors.red, // inkwell color
+                  //       child: SizedBox(
+                  //           width: 56,
+                  //           height: 56,
+                  //           child: Container(
+                  //             padding: EdgeInsets.all(10),
+                  //             child: Image.asset('assets/images/direct.png'),
+                  //           ),
+                  //           ),
+                  //     ),
+                  //   ),
+                  // )),
                 ],
               ),
             ),
