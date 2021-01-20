@@ -2,17 +2,17 @@ import 'package:ChatApp/screens/chatScreen.dart';
 import 'package:flutter/material.dart';
 
 class Tile extends StatelessWidget {
-  String username;
-  String person;
-  Tile({this.username, this.person});
+  final String username;
+  final String sender, reciever;
+  Tile({this.username, this.sender, this.reciever});
   @override
   Widget build(BuildContext context) {
     return FlatButton(
       onPressed: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return ChatScreen(
-            sender: person,
-            reciever: username,
+            sender: sender,
+            reciever: reciever,
           );
         }));
       },

@@ -1,6 +1,7 @@
 import 'package:ChatApp/brain.dart';
 import 'package:ChatApp/screens/listtile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Contacts extends StatefulWidget {
@@ -12,6 +13,8 @@ class Contacts extends StatefulWidget {
 class _ContactsState extends State<Contacts> {
   String searchUser;
   final _firestore = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
+  User loggedInUser;
   Brain brain = new Brain();
   TextEditingController searchTextEditingController =
       new TextEditingController();
@@ -19,15 +22,30 @@ class _ContactsState extends State<Contacts> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     contacts();
+    getCurrentUser();
+  }
+
+  void getCurrentUser() {
+    final user = _auth.currentUser;
+    try {
+      if (user != null) {
+        loggedInUser = user;
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   void contacts() async {
     await for (var snapshot in _firestore.collection('users').snapshots()) {
       for (var names in snapshot.docs) {
-        s.add(Tile(username: names.data()['name']));
+        s.add(Tile(
+          username: names.data()['name'],
+          sender: loggedInUser.email,
+          reciever: names.data()['email'],
+        ));
       }
     }
   }
