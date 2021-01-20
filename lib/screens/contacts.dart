@@ -1,5 +1,6 @@
 import 'package:ChatApp/brain.dart';
 import 'package:ChatApp/screens/listtile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Contacts extends StatefulWidget {
@@ -10,13 +11,33 @@ class Contacts extends StatefulWidget {
 
 class _ContactsState extends State<Contacts> {
   String searchUser;
+  final _firestore = FirebaseFirestore.instance;
   Brain brain = new Brain();
   TextEditingController searchTextEditingController =
       new TextEditingController();
+  List<Tile> s = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    contacts();
+  }
+
+  void contacts() async {
+    await for (var snapshot in _firestore.collection('users').snapshots()) {
+      for (var names in snapshot.docs) {
+        s.add(Tile(username: names.data()['name']));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView(
+        shrinkWrap: true,
+        scrollDirection: Axis.vertical,
         children: [
           Container(
             padding: EdgeInsets.only(top: 40, right: 20, left: 20),
@@ -71,13 +92,7 @@ class _ContactsState extends State<Contacts> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          brain
-                              .getUser(searchTextEditingController.text)
-                              .then((val) {
-                            searchUser = val.toString();
-                          });
-                        },
+                        onTap: () {},
                         child: Container(
                           width: 40,
                           height: 40,
@@ -93,9 +108,34 @@ class _ContactsState extends State<Contacts> {
                     ],
                   ),
                 ),
-                Tile(
-                  username: searchUser,
+                Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: s,
+                  ),
                 ),
+                StreamBuilder(
+                    stream: _firestore.collection('users').snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.blueAccent,
+                          ),
+                        );
+                      }
+                      final names = snapshot.data.docs;
+                      List<Tile> contacts = [];
+                      for (var name in names) {
+                        final userName = name.data()['name'];
+                        final tile = Tile(username: userName);
+                        contacts.add(tile);
+                      }
+                      return Column(
+                        children: contacts,
+                      );
+                    }),
               ],
             ),
           ),
