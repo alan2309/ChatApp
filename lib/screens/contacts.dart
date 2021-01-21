@@ -1,5 +1,7 @@
 import 'package:ChatApp/brain.dart';
+import 'package:ChatApp/button.dart';
 import 'package:ChatApp/screens/listtile.dart';
+import 'package:ChatApp/screens/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ class Contacts extends StatefulWidget {
 
 class _ContactsState extends State<Contacts> {
   String searchUser;
+  var scaffoldKey = GlobalKey<ScaffoldState>();
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   User loggedInUser;
@@ -23,7 +26,6 @@ class _ContactsState extends State<Contacts> {
   @override
   void initState() {
     super.initState();
-    contacts();
     getCurrentUser();
   }
 
@@ -38,39 +40,69 @@ class _ContactsState extends State<Contacts> {
     }
   }
 
-  void contacts() async {
-    await for (var snapshot in _firestore.collection('users').snapshots()) {
-      for (var names in snapshot.docs) {
-        s.add(Tile(
-          username: names.data()['name'],
-          sender: loggedInUser.email,
-          reciever: names.data()['email'],
-        ));
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
+      drawer: new Drawer(
+        child: new ListView(
+          children: <Widget>[
+            RoundedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, Login.id);
+              },
+              title: 'Logout',
+              colour: Colors.black,
+            ),
+          ],
+        ),
+      ),
       body: ListView(
         shrinkWrap: true,
         scrollDirection: Axis.vertical,
         children: [
           Container(
-            padding: EdgeInsets.only(top: 40, right: 20, left: 20),
+            padding: EdgeInsets.only(top: 10, right: 20, left: 20),
             child: Column(
               children: <Widget>[
                 Container(
-                  padding: EdgeInsets.only(left: 5, bottom: 40, top: 50),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Conversation',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontFamily: 'CK',
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(left: 5, bottom: 20, top: 10),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Conversation',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontFamily: 'CK',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        child: ClipOval(
+                          child: Material(
+                            color: Colors.white, // button color
+                            child: InkWell(
+                              onTap: () =>
+                                  scaffoldKey.currentState.openDrawer(),
+
+                              splashColor: Colors.red, // inkwell color
+                              child: SizedBox(
+                                width: 56,
+                                height: 56,
+                                child: Icon(
+                                  IconData(62530, fontFamily: 'MaterialIcons'),
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Container(
@@ -88,7 +120,7 @@ class _ContactsState extends State<Contacts> {
                     ],
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                  margin: EdgeInsets.only(bottom: 10),
+                  margin: EdgeInsets.only(bottom: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -147,8 +179,13 @@ class _ContactsState extends State<Contacts> {
                       List<Tile> contacts = [];
                       for (var name in names) {
                         final userName = name.data()['name'];
-                        final tile = Tile(username: userName);
-                        contacts.add(tile);
+                        if (name.data()['email'] != loggedInUser.email) {
+                          final tile = Tile(
+                              username: userName,
+                              sender: loggedInUser.email,
+                              reciever: name.data()['email']);
+                          contacts.add(tile);
+                        }
                       }
                       return Column(
                         children: contacts,

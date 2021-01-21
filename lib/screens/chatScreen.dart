@@ -1,6 +1,8 @@
+import 'package:ChatApp/brain.dart';
 import 'package:ChatApp/screens/msgTile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'msgTile.dart';
 
 class ChatScreen extends StatefulWidget {
   final String sender;
@@ -14,49 +16,64 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  String msg;
   final String sender;
   final String reciever;
   _ChatScreenState({this.sender, this.reciever});
-  List<MesssageTile> texts = [];
 
   final _firestore = FirebaseFirestore.instance;
-
-  @override
-  void initState() {
-    super.initState();
-    messages();
-  }
-
-  void messages() async {
-    await for (var snapshot in _firestore.collection('chats').snapshots()) {
-      for (var chats in snapshot.docs) {
-        if (chats.data()['sender'].toString() == sender) {
-          texts.add(MesssageTile(
-              msg: chats.data()['message'], align: Alignment.centerRight));
-        } else if (chats.data()['reciever'].toString() == reciever) {
-          texts.add(MesssageTile(
-            msg: chats.data()['message'],
-            align: Alignment.centerLeft,
-          ));
-        }
-      }
-    }
-  }
-
+  Brain brain = new Brain();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: setAppBar(),
+      appBar: setAppBar(reciever),
       body: Stack(
         children: <Widget>[
           Container(
-            child: ListView(
-              children: [
-                Column(
-                  children: texts,
-                ),
-              ],
-            ),
+            child: StreamBuilder(
+                stream: _firestore.collection('chats').snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.blueAccent,
+                      ),
+                    );
+                  }
+                  final messages = snapshot.data.docs;
+                  List<MesssageTile> messageBubbles = [];
+                  for (var message in messages) {
+                    final messageText = message.data()['message'];
+                    if (message.data()['sender'] == sender &&
+                        message.data()['reciever'] == reciever) {
+                      final messageBubble = MesssageTile(
+                        msg: messageText,
+                        align: Alignment.centerRight,
+                        color1: Colors.blue[600],
+                        color2: Colors.lightBlue,
+                        left: 20,
+                        right: 0,
+                      );
+                      messageBubbles.add(messageBubble);
+                    } else if (message.data()['sender'] == reciever &&
+                        message.data()['reciever'] == sender) {
+                      final messageBubble = MesssageTile(
+                        msg: messageText,
+                        align: Alignment.centerLeft,
+                        color1: Colors.lightGreen,
+                        color2: Colors.green,
+                        left: 0,
+                        right: 20,
+                      );
+                      messageBubbles.add(messageBubble);
+                    }
+                  }
+                  return Expanded(
+                    child: ListView(
+                      children: messageBubbles,
+                    ),
+                  );
+                }),
           ),
 
           //   height: 100,
@@ -81,6 +98,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(60)),
                       ),
                       child: TextField(
+                        onChanged: (value) {
+                          msg = value;
+                        },
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Type Message......',
@@ -94,24 +114,30 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   ),
-                  // Container(
-                  //     child: ClipOval(
-                  //   child: Material(
-                  //     color: Colors.white, // button color
-                  //     child: InkWell(
-                  //       onTap: () {},
-                  //       splashColor: Colors.red, // inkwell color
-                  //       child: SizedBox(
-                  //           width: 56,
-                  //           height: 56,
-                  //           child: Container(
-                  //             padding: EdgeInsets.all(10),
-                  //             child: Image.asset('assets/images/direct.png'),
-                  //           ),
-                  //           ),
-                  //     ),
-                  //   ),
-                  // )),
+                  Container(
+                      child: ClipOval(
+                    child: Material(
+                      color: Colors.white, // button color
+                      child: InkWell(
+                        onTap: () {
+                          Map<String, String> chat = {
+                            "sender": sender,
+                            "reciever": reciever,
+                            "message": msg
+                          };
+                          brain.uploadChats(chat);
+                        },
+                        splashColor: Colors.red, // inkwell color
+                        child: SizedBox(
+                            width: 56,
+                            height: 56,
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              child: Image.asset('assets/images/arrow.png'),
+                            )),
+                      ),
+                    ),
+                  )),
                 ],
               ),
             ),
@@ -122,13 +148,13 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-Widget setAppBar() {
+Widget setAppBar(String name) {
   return new AppBar(
     automaticallyImplyLeading: true,
     elevation: 0.0, // for elevation
     titleSpacing: 10.0, // if you want remove title spacing with back button
     title: Text(
-      'About US',
+      name,
       style: TextStyle(
         color: Colors.white,
       ),
