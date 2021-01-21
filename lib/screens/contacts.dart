@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'package:ChatApp/brain.dart';
-import 'package:ChatApp/button.dart';
+
 import 'package:ChatApp/screens/listtile.dart';
 import 'package:ChatApp/screens/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 class Contacts extends StatefulWidget {
   static String id = 'contacts';
@@ -12,9 +13,17 @@ class Contacts extends StatefulWidget {
   _ContactsState createState() => _ContactsState();
 }
 
+class Constants {
+  static const String Logout = 'Logout';
+
+  static const List<String> choices = [
+    Logout,
+  ];
+}
+
 class _ContactsState extends State<Contacts> {
   String searchUser;
-  var scaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   User loggedInUser;
@@ -27,6 +36,12 @@ class _ContactsState extends State<Contacts> {
   void initState() {
     super.initState();
     getCurrentUser();
+  }
+
+  void choiceAction(String choice) {
+    if (choice == Constants.Logout) {
+      Navigator.popAndPushNamed(context, Login.id);
+    }
   }
 
   void getCurrentUser() {
@@ -42,62 +57,114 @@ class _ContactsState extends State<Contacts> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: scaffoldKey,
-      drawer: new Drawer(
-        child: new ListView(
-          children: <Widget>[
-            RoundedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, Login.id);
-              },
-              title: 'Logout',
-              colour: Colors.black,
-            ),
-          ],
+    return MaterialApp(
+      home: Scaffold(
+        key: _scaffoldKey,
+        drawer: new Drawer(
+          child: new ListView(
+            children: <Widget>[
+              Container(
+                child: Text('PROFILE HERE'),
+              )
+            ],
+          ),
         ),
-      ),
-      body: ListView(
-        shrinkWrap: true,
-        scrollDirection: Axis.vertical,
-        children: [
-          Container(
-            padding: EdgeInsets.only(top: 10, right: 20, left: 20),
-            child: Column(
+        body: ListView(
+          children: [
+            Column(
               children: <Widget>[
                 Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                  height: 130.0,
+                  child: Stack(
+                    children: <Widget>[
                       Container(
-                        padding: EdgeInsets.only(left: 5, bottom: 20, top: 10),
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Conversation',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontFamily: 'CK',
-                            fontWeight: FontWeight.bold,
-                          ),
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        width: 900,
+                        height: 100.0,
+                        color: Colors.red,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              // alignment: Alignment.centerLeft,
+                              child: Text(
+                                "Conversations",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20.0,
+                                    fontFamily: 'CK'),
+                              ),
+                            ),
+                            Container(
+                              child: PopupMenuButton(
+                                  icon: Icon(
+                                    IconData(62530,
+                                        fontFamily: 'MaterialIcons'),
+                                  ),
+                                  onSelected: choiceAction,
+                                  itemBuilder: (BuildContext context) {
+                                    return Constants.choices
+                                        .map((String choice) {
+                                      return PopupMenuItem<String>(
+                                        value: choice,
+                                        child: Text(choice),
+                                      );
+                                    }).toList();
+                                  }),
+                            ),
+                          ],
                         ),
                       ),
-                      Container(
-                        child: ClipOval(
-                          child: Material(
-                            color: Colors.white, // button color
-                            child: InkWell(
-                              onTap: () =>
-                                  scaffoldKey.currentState.openDrawer(),
-
-                              splashColor: Colors.red, // inkwell color
-                              child: SizedBox(
-                                width: 56,
-                                height: 56,
-                                child: Icon(
-                                  IconData(62530, fontFamily: 'MaterialIcons'),
-                                  size: 40,
+                      Positioned(
+                        top: 80.0,
+                        left: 0.0,
+                        right: 0.0,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 20.0),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(1.0),
+                                border: Border.all(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    width: 1.0),
+                                color: Colors.white),
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.menu,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () {
+                                    _scaffoldKey.currentState.openDrawer();
+                                  },
                                 ),
-                              ),
+                                Expanded(
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      hintText: "Search",
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.search,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () {
+                                    print("your menu action here");
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.notifications,
+                                    color: Colors.red,
+                                  ),
+                                  onPressed: () {
+                                    print("your menu action here");
+                                  },
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -106,63 +173,12 @@ class _ContactsState extends State<Contacts> {
                   ),
                 ),
                 Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blueGrey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                  margin: EdgeInsets.only(bottom: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(
-                        height: 30.0,
-                        width: 250,
-                        child: TextField(
-                          controller: searchTextEditingController,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'Search username',
-                            hintStyle: TextStyle(
-                                color: Colors.black,
-                                height: 0,
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w300,
-                                fontStyle: FontStyle.italic),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.green[100],
-                            border: Border.all(color: Colors.black54),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: EdgeInsets.all(5),
-                          child: Image.asset('assets/images/search.png'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: s,
+                  child: Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: s,
+                    ),
                   ),
                 ),
                 StreamBuilder(
@@ -193,22 +209,7 @@ class _ContactsState extends State<Contacts> {
                     }),
               ],
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: Container(
-        height: 80,
-        width: 80,
-        child: FittedBox(
-          child: FloatingActionButton(
-            backgroundColor: Colors.green[200],
-            elevation: 10,
-            onPressed: () {},
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-          ),
+          ],
         ),
       ),
     );

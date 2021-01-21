@@ -26,149 +26,175 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: setAppBar(reciever),
-      body: Stack(
-        children: <Widget>[
-          Container(
-            child: StreamBuilder(
-                stream: _firestore.collection('chats').snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.blueAccent,
-                      ),
-                    );
-                  }
-                  final messages = snapshot.data.docs;
-                  List<MesssageTile> messageBubbles = [];
-                  for (var message in messages) {
-                    final messageText = message.data()['message'];
-                    if (message.data()['sender'] == sender &&
-                        message.data()['reciever'] == reciever) {
-                      final messageBubble = MesssageTile(
-                        msg: messageText,
-                        align: Alignment.centerRight,
-                        color1: Colors.blue[600],
-                        color2: Colors.lightBlue,
-                        left: 20,
-                        right: 0,
-                      );
-                      messageBubbles.add(messageBubble);
-                    } else if (message.data()['sender'] == reciever &&
-                        message.data()['reciever'] == sender) {
-                      final messageBubble = MesssageTile(
-                        msg: messageText,
-                        align: Alignment.centerLeft,
-                        color1: Colors.lightGreen,
-                        color2: Colors.green,
-                        left: 0,
-                        right: 20,
-                      );
-                      messageBubbles.add(messageBubble);
-                    }
-                  }
-                  return Expanded(
-                    child: ListView(
-                      children: messageBubbles,
-                    ),
-                  );
-                }),
-          ),
-
-          //   height: 100,
-          Container(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              color: Colors.white70,
+      body: Container(
+        child: Column(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+              width: MediaQuery.of(context).size.width,
+              height: 90.0,
+              color: Colors.red,
               child: Row(
-                children: <Widget>[
-                  Container(
-                    height: 50,
-                    margin: EdgeInsets.all(10),
-                    width: 330,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      height: 30.0,
-                      width: 250,
-                      alignment: FractionalOffset.bottomLeft,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.all(Radius.circular(60)),
-                      ),
-                      child: TextField(
-                        onChanged: (value) {
-                          msg = value;
-                        },
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Type Message......',
-                          hintStyle: TextStyle(
-                              color: Colors.black,
-                              height: 0,
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w300,
-                              fontStyle: FontStyle.italic),
-                        ),
-                      ),
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
                     ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
                   Container(
-                      child: ClipOval(
-                    child: Material(
-                      color: Colors.white, // button color
-                      child: InkWell(
-                        onTap: () {
-                          Map<String, String> chat = {
-                            "sender": sender,
-                            "reciever": reciever,
-                            "message": msg
-                          };
-                          brain.uploadChats(chat);
-                        },
-                        splashColor: Colors.red, // inkwell color
-                        child: SizedBox(
-                            width: 56,
-                            height: 56,
-                            child: Container(
-                              padding: EdgeInsets.all(10),
-                              child: Image.asset('assets/images/arrow.png'),
-                            )),
-                      ),
+                    margin: EdgeInsets.all(10),
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(color: Colors.black54),
+                      borderRadius: BorderRadius.circular(40),
                     ),
-                  )),
+                    padding: EdgeInsets.all(2),
+                    child: Image.asset('assets/images/man.png'),
+                  ),
+                  Container(
+                    // alignment: Alignment.centerLeft,
+                    child: Text(
+                      reciever,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.0,
+                          fontFamily: 'CK'),
+                    ),
+                  ),
                 ],
               ),
             ),
-          )
-        ],
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  image: new DecorationImage(
+                    image: new AssetImage("assets/images/bg.jpg"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: StreamBuilder(
+                    stream: _firestore.collection('chats').snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.blueAccent,
+                          ),
+                        );
+                      }
+                      final messages = snapshot.data.docs;
+                      List<MesssageTile> messageBubbles = [];
+                      for (var message in messages) {
+                        final messageText = message.data()['message'];
+                        if (message.data()['sender'] == sender &&
+                            message.data()['reciever'] == reciever) {
+                          final messageBubble = MesssageTile(
+                            msg: messageText,
+                            align: Alignment.centerRight,
+                            color1: Colors.blue[600],
+                            color2: Colors.lightBlue,
+                            left: 20,
+                            right: 0,
+                          );
+                          messageBubbles.add(messageBubble);
+                        } else if (message.data()['sender'] == reciever &&
+                            message.data()['reciever'] == sender) {
+                          final messageBubble = MesssageTile(
+                            msg: messageText,
+                            align: Alignment.centerLeft,
+                            color1: Colors.lightGreen,
+                            color2: Colors.green,
+                            left: 0,
+                            right: 20,
+                          );
+                          messageBubbles.add(messageBubble);
+                        }
+                      }
+                      return Expanded(
+                        child: ListView(
+                          children: messageBubbles,
+                        ),
+                      );
+                    }),
+              ),
+            ),
+
+            //   height: 100,
+            Container(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                color: Colors.grey[200],
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      height: 50,
+                      margin: EdgeInsets.all(10),
+                      width: 330,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 30.0,
+                        width: 250,
+                        alignment: FractionalOffset.bottomLeft,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.all(Radius.circular(60)),
+                        ),
+                        child: TextField(
+                          onChanged: (value) {
+                            msg = value;
+                          },
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Type Message......',
+                            hintStyle: TextStyle(
+                                color: Colors.black,
+                                height: 0,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w300,
+                                fontStyle: FontStyle.italic),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                        child: ClipOval(
+                      child: Material(
+                        color: Colors.white, // button color
+                        child: InkWell(
+                          onTap: () {
+                            Map<String, String> chat = {
+                              "sender": sender,
+                              "reciever": reciever,
+                              "message": msg
+                            };
+                            brain.uploadChats(chat);
+                          },
+                          splashColor: Colors.red, // inkwell color
+                          child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Container(
+                                padding: EdgeInsets.all(10),
+                                child: Image.asset('assets/images/arrow.png'),
+                              )),
+                        ),
+                      ),
+                    )),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
-}
-
-Widget setAppBar(String name) {
-  return new AppBar(
-    automaticallyImplyLeading: true,
-    elevation: 0.0, // for elevation
-    titleSpacing: 10.0, // if you want remove title spacing with back button
-    title: Text(
-      name,
-      style: TextStyle(
-        color: Colors.white,
-      ),
-    ),
-    leading: Container(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        color: Colors.green[100],
-        border: Border.all(color: Colors.black54),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Image.asset('assets/images/man.png'),
-    ),
-  );
 }
