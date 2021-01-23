@@ -16,9 +16,9 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  String msg;
   final String sender;
   final String reciever;
+  TextEditingController messagecontrol = new TextEditingController();
   _ChatScreenState({this.sender, this.reciever});
 
   final _firestore = FirebaseFirestore.instance;
@@ -75,12 +75,15 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   image: new DecorationImage(
-                    image: new AssetImage("assets/images/bg.jpg"),
+                    image: new AssetImage("assets/images/fuji.jpg"),
                     fit: BoxFit.cover,
                   ),
                 ),
                 child: StreamBuilder(
-                    stream: _firestore.collection('chats').snapshots(),
+                    stream: _firestore
+                        .collection('chats')
+                        .orderBy("time", descending: false)
+                        .snapshots(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return Center(
@@ -96,10 +99,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         if (message.data()['sender'] == sender &&
                             message.data()['reciever'] == reciever) {
                           final messageBubble = MesssageTile(
+                            time: message.data()["timedisp"],
                             msg: messageText,
                             align: Alignment.centerRight,
-                            color1: Colors.blue[600],
-                            color2: Colors.lightBlue,
+                            color1: Colors.blue[800],
+                            color2: Colors.lightBlue[100],
                             left: 20,
                             right: 0,
                           );
@@ -107,6 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         } else if (message.data()['sender'] == reciever &&
                             message.data()['reciever'] == sender) {
                           final messageBubble = MesssageTile(
+                            time: message.data()["timedisp"],
                             msg: messageText,
                             align: Alignment.centerLeft,
                             color1: Colors.lightGreen,
@@ -148,9 +153,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           borderRadius: BorderRadius.all(Radius.circular(60)),
                         ),
                         child: TextField(
-                          onChanged: (value) {
-                            msg = value;
-                          },
+                          controller: messagecontrol,
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: 'Type Message......',
@@ -170,12 +173,21 @@ class _ChatScreenState extends State<ChatScreen> {
                         color: Colors.white, // button color
                         child: InkWell(
                           onTap: () {
-                            Map<String, String> chat = {
-                              "sender": sender,
-                              "reciever": reciever,
-                              "message": msg
-                            };
-                            brain.uploadChats(chat);
+                            if (messagecontrol.text != "") {
+                              DateTime now = new DateTime.now();
+                              Map<String, dynamic> chat = {
+                                "sender": sender,
+                                "reciever": reciever,
+                                "message": messagecontrol.text,
+                                "time": DateTime.now().millisecondsSinceEpoch,
+                                "timedisp":
+                                    "${now.hour.toString()}:${now.minute.toString()}"
+                              };
+                              brain.uploadChats(chat);
+                              messagecontrol.text = "";
+                            } else {
+                              print("empty");
+                            }
                           },
                           splashColor: Colors.red, // inkwell color
                           child: SizedBox(

@@ -1,3 +1,4 @@
+import 'package:ChatApp/screens/editProfile.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ChatApp/brain.dart';
@@ -15,8 +16,10 @@ class Contacts extends StatefulWidget {
 
 class Constants {
   static const String Logout = 'Logout';
+  static const String EditProfile = 'Edit Profile';
 
   static const List<String> choices = [
+    EditProfile,
     Logout,
   ];
 }
@@ -41,6 +44,10 @@ class _ContactsState extends State<Contacts> {
   void choiceAction(String choice) {
     if (choice == Constants.Logout) {
       Navigator.popAndPushNamed(context, Login.id);
+    } else if (choice == Constants.EditProfile) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return Profile(loggedInUser: loggedInUser);
+      }));
     }
   }
 
@@ -58,13 +65,22 @@ class _ContactsState extends State<Contacts> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         key: _scaffoldKey,
         drawer: new Drawer(
           child: new ListView(
             children: <Widget>[
               Container(
-                child: Text('PROFILE HERE'),
+                padding: EdgeInsets.only(top: 30),
+                child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return Profile();
+                      }));
+                    },
+                    child: Center(child: Text('EDIT PROFILE'))),
               )
             ],
           ),
@@ -86,12 +102,13 @@ class _ContactsState extends State<Contacts> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
+                              padding: EdgeInsets.only(bottom: 10),
                               // alignment: Alignment.centerLeft,
                               child: Text(
                                 "Conversations",
                                 style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 20.0,
+                                    fontSize: 30.0,
                                     fontFamily: 'CK'),
                               ),
                             ),
@@ -173,12 +190,11 @@ class _ContactsState extends State<Contacts> {
                   ),
                 ),
                 Container(
-                  child: Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: s,
-                    ),
+                  padding: EdgeInsets.only(top: 30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: s,
                   ),
                 ),
                 StreamBuilder(
