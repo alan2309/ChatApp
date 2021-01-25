@@ -17,77 +17,129 @@ class _LoginState extends State<Login> {
   final _auth = FirebaseAuth.instance;
   String email;
   String password;
+  bool _obscure = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: ModalProgressHUD(
-        inAsyncCall: showSpinner,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Flexible(
-                child: Hero(
-                  tag: 'logo',
-                  child: Container(
-                    height: 200.0,
-                    child: Image.asset('assets/images/search.png'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [Colors.deepOrange, Colors.yellow]),
+        ),
+        child: ModalProgressHUD(
+          inAsyncCall: showSpinner,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Flexible(
+                  child: Hero(
+                    tag: 'logo',
+                    child: Container(
+                      height: 200.0,
+                      child: Stack(
+                        alignment: Alignment(0, 0),
+                        children: [
+                          Positioned(
+                            top: 15,
+                            child: Icon(
+                              Icons.circle,
+                              color: Colors.white,
+                              size: 200,
+                            ),
+                          ),
+                          Image.asset('assets/images/man.png'),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 48.0,
-              ),
-              TextField(
-                keyboardType: TextInputType.emailAddress,
-                textAlign: TextAlign.center,
-                onChanged: (value) {
-                  email = value;
-                },
-                decoration:
-                    kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
-              ),
-              SizedBox(
-                height: 8.0,
-              ),
-              TextField(
-                obscureText: true,
-                textAlign: TextAlign.center,
-                onChanged: (value) {
-                  password = value;
-                },
-                decoration: kTextFieldDecoration.copyWith(
-                    hintText: 'Enter your password'),
-              ),
-              SizedBox(
-                height: 24.0,
-              ),
-              RoundedButton(
-                title: 'Log In',
-                colour: Colors.lightBlueAccent,
-                onPressed: () async {
-                  setState(() {
-                    showSpinner = true;
-                  });
-                  try {
-                    final user = await _auth.signInWithEmailAndPassword(
-                        email: email, password: password);
-                    if (user != null) {
-                      Navigator.pushNamed(context, Contacts.id);
-                    }
-
+                SizedBox(
+                  height: 48.0,
+                ),
+                Stack(
+                  children: [
+                    Positioned(
+                      left: 15.0,
+                      bottom: 15,
+                      child: Icon(Icons.mail, color: Colors.black54),
+                    ),
+                    TextField(
+                      keyboardType: TextInputType.emailAddress,
+                      textAlign: TextAlign.center,
+                      onChanged: (value) {
+                        email = value;
+                      },
+                      decoration: kTextFieldDecoration.copyWith(
+                          hintText: 'Enter your email'),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 8.0,
+                ),
+                Stack(
+                  children: [
+                    Positioned(
+                      left: 15.0,
+                      bottom: 15,
+                      child: Icon(Icons.lock, color: Colors.black54),
+                    ),
+                    TextField(
+                      obscureText: _obscure,
+                      textAlign: TextAlign.center,
+                      onChanged: (value) {
+                        password = value;
+                      },
+                      decoration: kTextFieldDecoration.copyWith(
+                          hintText: 'Enter your password'),
+                    ),
+                    Positioned(
+                      right: 0.0,
+                      child: IconButton(
+                          icon: _obscure
+                              ? Icon(Icons.visibility)
+                              : Icon(Icons.visibility_off),
+                          onPressed: () {
+                            setState(() {
+                              if (_obscure)
+                                _obscure = false;
+                              else
+                                _obscure = true;
+                            });
+                          }),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 24.0,
+                ),
+                RoundedButton(
+                  title: 'Log In',
+                  colour: Colors.redAccent,
+                  onPressed: () async {
                     setState(() {
-                      showSpinner = false;
+                      showSpinner = true;
                     });
-                  } catch (e) {
-                    print(e);
-                  }
-                },
-              ),
-            ],
+                    try {
+                      final user = await _auth.signInWithEmailAndPassword(
+                          email: email, password: password);
+                      if (user != null) {
+                        Navigator.pushNamed(context, Contacts.id);
+                      }
+
+                      setState(() {
+                        showSpinner = false;
+                      });
+                    } catch (e) {
+                      print(e);
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -98,7 +150,7 @@ class _LoginState extends State<Login> {
           children: [
             Text(
               "Don't have an account?",
-              style: TextStyle(color: Colors.black54, fontSize: 15),
+              style: TextStyle(color: Colors.black87, fontSize: 15),
             ),
             FlatButton(
               onPressed: () {

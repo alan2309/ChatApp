@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Profile extends StatefulWidget {
+  static String id = "editProfile";
   final User loggedInUser;
   Profile({this.loggedInUser});
   @override
