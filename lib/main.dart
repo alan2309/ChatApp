@@ -4,10 +4,11 @@ import 'package:ChatApp/screens/chatScreen.dart';
 import 'package:ChatApp/screens/contacts.dart';
 import 'package:ChatApp/screens/login.dart';
 import 'package:ChatApp/screens/register.dart';
+import 'package:ChatApp/screens/shared_pref.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:ChatApp/screens/editProfile.dart';
-import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,10 +19,7 @@ void main() async {
 class ChatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       routes: {
         Contacts.id: (context) => Contacts(),
         ChatScreen.id: (context) => ChatScreen(),
@@ -48,7 +46,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 5), () => Navigator.pushNamed(context, Login.id));
+    Timer(Duration(seconds: 3), () async {
+      bool isLoggedIn = await getLoggedInStatus();
+      print(isLoggedIn);
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+        return isLoggedIn ? Contacts() : Login();
+      }));
+    });
   }
 
   @override

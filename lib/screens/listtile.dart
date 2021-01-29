@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class Tile extends StatelessWidget {
   final String username;
-  final String sender, reciever;
-  Tile({this.username, this.sender, this.reciever});
+  final String sender, reciever, img;
+  Tile({this.username, this.sender, this.reciever, this.img});
   @override
   Widget build(BuildContext context) {
     return FlatButton(
@@ -13,6 +13,8 @@ class Tile extends StatelessWidget {
           return ChatScreen(
             sender: sender,
             reciever: reciever,
+            img: img,
+            dispName: username,
           );
         }));
       },
@@ -27,15 +29,17 @@ class Tile extends StatelessWidget {
           title: Text(username),
           subtitle: Text('sub'),
           leading: Container(
-            width: 50,
             height: 50,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.black54),
-              borderRadius: BorderRadius.circular(40),
+            width: 50,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(5000),
+              child: img != null
+                  ? Image.network(
+                      img,
+                      fit: BoxFit.scaleDown,
+                    )
+                  : Image.asset('assets/images/man.png'),
             ),
-            padding: EdgeInsets.all(5),
-            child: Image.asset('assets/images/man.png'),
           ),
           trailing: Container(
             width: 40,

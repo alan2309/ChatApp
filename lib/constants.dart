@@ -13,6 +13,7 @@ const kMessageTextFieldDecoration = InputDecoration(
 );
 
 const kMessageContainerDecoration = BoxDecoration(
+  gradient: LinearGradient(colors: [Colors.deepOrange, Colors.yellow]),
   border: Border(
     top: BorderSide(color: Colors.lightBlueAccent, width: 2.0),
   ),

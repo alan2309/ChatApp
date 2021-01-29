@@ -2,6 +2,7 @@ import 'package:ChatApp/button.dart';
 import 'package:ChatApp/constants.dart';
 import 'package:ChatApp/screens/contacts.dart';
 import 'package:ChatApp/screens/register.dart';
+import 'package:ChatApp/screens/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -13,6 +14,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final _scaffoldkey = GlobalKey<ScaffoldState>();
+  final _formkey = GlobalKey<FormState>();
   bool showSpinner = false;
   final _auth = FirebaseAuth.instance;
   String email;
@@ -21,15 +24,17 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldkey,
+      resizeToAvoidBottomPadding: true,
       backgroundColor: Colors.white,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: [Colors.deepOrange, Colors.yellow]),
         ),
-        child: ModalProgressHUD(
-          inAsyncCall: showSpinner,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
+        child: Form(
+          key: _formkey,
+          child: ModalProgressHUD(
+            inAsyncCall: showSpinner,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -59,85 +64,92 @@ class _LoginState extends State<Login> {
                 SizedBox(
                   height: 48.0,
                 ),
-                Stack(
-                  children: [
-                    Positioned(
-                      left: 15.0,
-                      bottom: 15,
-                      child: Icon(Icons.mail, color: Colors.black54),
+                Stack(children: [
+                  Positioned(
+                    child: IconButton(
+                      icon: Icon(Icons.mail),
+                      onPressed: null,
                     ),
-                    TextField(
-                      keyboardType: TextInputType.emailAddress,
-                      textAlign: TextAlign.center,
-                      onChanged: (value) {
-                        email = value;
-                      },
-                      decoration: kTextFieldDecoration.copyWith(
-                          hintText: 'Enter your email'),
-                    ),
-                  ],
-                ),
+                  ),
+                  TextFormField(
+                    validator: (value) => value.isEmpty ? 'Enter Email' : null,
+                    keyboardType: TextInputType.emailAddress,
+                    textAlign: TextAlign.center,
+                    onChanged: (value) {
+                      email = value;
+                    },
+                    decoration: kTextFieldDecoration.copyWith(
+                        hintText: 'Enter your email'),
+                  ),
+                ]),
                 SizedBox(
-                  height: 8.0,
+                  height: 30.0,
                 ),
-                Stack(
-                  children: [
-                    Positioned(
-                      left: 15.0,
-                      bottom: 15,
-                      child: Icon(Icons.lock, color: Colors.black54),
+                Stack(children: [
+                  Positioned(
+                    left: 0.0,
+                    child: IconButton(
+                      icon: Icon(Icons.lock),
+                      onPressed: null,
                     ),
-                    TextField(
-                      obscureText: _obscure,
-                      textAlign: TextAlign.center,
-                      onChanged: (value) {
-                        password = value;
-                      },
-                      decoration: kTextFieldDecoration.copyWith(
-                          hintText: 'Enter your password'),
-                    ),
-                    Positioned(
-                      right: 0.0,
-                      child: IconButton(
-                          icon: _obscure
-                              ? Icon(Icons.visibility)
-                              : Icon(Icons.visibility_off),
-                          onPressed: () {
-                            setState(() {
-                              if (_obscure)
-                                _obscure = false;
-                              else
-                                _obscure = true;
-                            });
-                          }),
-                    ),
-                  ],
-                ),
+                  ),
+                  TextFormField(
+                    textAlign: TextAlign.center,
+                    validator: (value) => value.length < 6
+                        ? 'Enter Password +6 character long'
+                        : null,
+                    obscureText: _obscure,
+                    onChanged: (value) {
+                      password = value;
+                    },
+                    decoration: kTextFieldDecoration.copyWith(
+                        hintText: 'Enter your password'),
+                  ),
+                  Positioned(
+                    right: 0.0,
+                    child: IconButton(
+                        icon: _obscure
+                            ? Icon(Icons.visibility)
+                            : Icon(Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            if (_obscure)
+                              _obscure = false;
+                            else
+                              _obscure = true;
+                          });
+                        }),
+                  ),
+                ]),
                 SizedBox(
-                  height: 24.0,
+                  height: 14.0,
                 ),
                 RoundedButton(
-                  title: 'Log In',
-                  colour: Colors.redAccent,
-                  onPressed: () async {
-                    setState(() {
-                      showSpinner = true;
-                    });
-                    try {
-                      final user = await _auth.signInWithEmailAndPassword(
-                          email: email, password: password);
-                      if (user != null) {
-                        Navigator.pushNamed(context, Contacts.id);
-                      }
+                    title: 'Log In',
+                    colour: Colors.redAccent,
+                    onPressed: () async {
+                      try {
+                        if (_formkey.currentState.validate()) {
+                          setState(() {
+                            showSpinner = true;
+                          });
+                        }
+                        final user = await _auth.signInWithEmailAndPassword(
+                            email: email, password: password);
 
-                      setState(() {
-                        showSpinner = false;
-                      });
-                    } catch (e) {
-                      print(e);
-                    }
-                  },
-                ),
+                        if (user != null) {
+                          storedLoggedInStatus(true);
+
+                          Navigator.pushNamed(context, Contacts.id);
+                        }
+                      } catch (e) {
+                        setState(() {
+                          showSpinner = false;
+                        });
+                        showSnackBar();
+                        print(e);
+                      }
+                    }),
               ],
             ),
           ),
@@ -168,5 +180,25 @@ class _LoginState extends State<Login> {
         ),
       ),
     );
+  }
+
+  void showSnackBar() {
+    final snackBarContent = SnackBar(
+      // padding: EdgeInsets.symmetric(horizontal: 60),
+
+      content: Container(
+        height: 30,
+        alignment: Alignment.centerRight,
+        child: Text(
+          "Wrong Email/Password",
+          style: TextStyle(fontSize: 11),
+        ),
+      ),
+      backgroundColor: Colors.blue,
+      action: SnackBarAction(
+          label: "Enter Valid Email or Password",
+          onPressed: _scaffoldkey.currentState.hideCurrentSnackBar),
+    );
+    _scaffoldkey.currentState.showSnackBar(snackBarContent);
   }
 }
