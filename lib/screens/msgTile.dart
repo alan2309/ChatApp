@@ -1,7 +1,6 @@
 import 'package:ChatApp/screens/image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:vector_math/vector_math_64.dart' as vec;
 
 class MesssageTile extends StatelessWidget {
   final String msg, imgurl;
