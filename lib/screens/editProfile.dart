@@ -174,9 +174,9 @@ class _ProfileState extends State<Profile> {
                               child: (_image == null)
                                   ? ((urlLoad != null)
                                       ? Image.network(urlLoad,
-                                          fit: BoxFit.contain)
+                                          fit: BoxFit.fitHeight)
                                       : Image.asset('assets/images/man.png',
-                                          fit: BoxFit.contain))
+                                          fit: BoxFit.fitHeight))
                                   : Image.file(_image)),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.end,

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:ChatApp/screens/viewProfile.dart';
 import 'package:path/path.dart';
 import 'package:ChatApp/brain.dart';
 import 'package:ChatApp/screens/msgTile.dart';
@@ -7,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'msgTile.dart';
+import 'viewProfile.dart';
 
 class ChatScreen extends StatefulWidget {
   final String sender;
@@ -57,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: <Widget>[
             Container(
-              padding: EdgeInsets.only(left: 10, right: 10, top: 30),
+              padding: EdgeInsets.only(left: 10, right: 10, top: 20),
               width: MediaQuery.of(context).size.width,
               height: 90.0,
               color: Colors.red,
@@ -86,15 +88,22 @@ class _ChatScreenState extends State<ChatScreen> {
                           : Image.asset('assets/images/man.png'),
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.only(left: 10),
+                  FlatButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return ViewProfile(
+                            loggedInUser: dispName, sender: reciever, img: img);
+                      }));
+                    },
+                    padding: EdgeInsets.only(right: 5, left: 10),
                     // alignment: Alignment.centerLeft,
                     child: Text(
                       dispName,
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 20.0,
-                          fontFamily: 'CK'),
+                          fontFamily: 'Montserrat'),
                     ),
                   ),
                 ],
@@ -137,6 +146,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             right: 0,
                             imgurl: message.data()['imgurl'],
                           );
+
                           messageBubbles.add(messageBubble);
                         } else if (message.data()['sender'] == reciever &&
                             message.data()['reciever'] == sender) {
@@ -161,8 +171,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     }),
               ),
             ),
-
-            //   height: 100,
             Container(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -247,6 +255,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 "imgurl": imgurl,
                               };
                               brain.uploadChats(chat);
+                              File messagecontrol = _image;
                               _image = null;
                             }
                           },
