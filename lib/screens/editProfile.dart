@@ -101,32 +101,7 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    getProfile();
     email.text = loggedInUser.email;
-  }
-
-  void getProfile() {
-    StreamBuilder(
-        stream: _firestore.collection('users').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.blueAccent,
-              ),
-            );
-          }
-          final names = snapshot.data.docs;
-          for (var name in names) {
-            final userName = name.data()['name'];
-            final url = name.data()['ppurl'];
-            if (name.data()['email'] == loggedInUser.email) {
-              username.text = userName;
-              urlLoad = url;
-            }
-          }
-          return null;
-        });
   }
 
   @override
