@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:ChatApp/screens/viewProfile.dart';
+import 'package:flutter/gestures.dart';
 import 'package:path/path.dart';
 import 'package:ChatApp/brain.dart';
 import 'package:ChatApp/screens/msgTile.dart';
@@ -9,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'msgTile.dart';
 import 'viewProfile.dart';
+
+ScrollController _controller = ScrollController();
 
 class ChatScreen extends StatefulWidget {
   final String sender;
@@ -22,6 +25,12 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  // @override
+  // void initState() {
+  //   _controller.jumpTo(_controller.position.extentAfter);
+  //   super.initState();
+  // }
+
   final String sender;
   final String reciever, img, dispName;
   TextEditingController messagecontrol = new TextEditingController();
@@ -55,6 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
         child: Column(
           children: <Widget>[
@@ -120,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: StreamBuilder(
                     stream: _firestore
                         .collection('chats')
-                        .orderBy("time", descending: false)
+                        .orderBy("time", descending: true)
                         .snapshots(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
@@ -146,7 +156,6 @@ class _ChatScreenState extends State<ChatScreen> {
                             right: 0,
                             imgurl: message.data()['imgurl'],
                           );
-
                           messageBubbles.add(messageBubble);
                         } else if (message.data()['sender'] == reciever &&
                             message.data()['reciever'] == sender) {
@@ -163,8 +172,10 @@ class _ChatScreenState extends State<ChatScreen> {
                           messageBubbles.add(messageBubble);
                         }
                       }
-                      return Expanded(
+                      return Flexible(
                         child: ListView(
+                          reverse: true,
+                          controller: _controller,
                           children: messageBubbles,
                         ),
                       );
@@ -194,7 +205,9 @@ class _ChatScreenState extends State<ChatScreen> {
                               borderRadius:
                                   BorderRadius.all(Radius.circular(60)),
                             ),
-                            child: TextField(
+                            child: TextFormField(
+                              onTap: () => _controller
+                                  .jumpTo(_controller.position.minScrollExtent),
                               controller: messagecontrol,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
@@ -228,6 +241,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         color: Colors.white, // button color
                         child: InkWell(
                           onTap: () async {
+                            _controller
+                                .jumpTo(_controller.position.minScrollExtent);
                             if (messagecontrol.text != "") {
                               _image = null;
                               DateTime now = new DateTime.now();
