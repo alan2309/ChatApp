@@ -13,6 +13,7 @@ import 'package:ChatApp/brain.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class Register extends StatefulWidget {
   static String id = 'register';
@@ -21,6 +22,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   final _formkey = GlobalKey<FormState>();
   final _scaffoldkey = GlobalKey<ScaffoldState>();
   final _auth = FirebaseAuth.instance;
@@ -32,6 +34,7 @@ class _RegisterState extends State<Register> {
   bool _obscure = true;
   File _image;
   String imageUrl;
+  String myToken;
   Future<void> getImage(ImageSource source) async {
     PickedFile selectedFile = await ImagePicker().getImage(source: source);
     File image = File(selectedFile.path);
@@ -67,9 +70,14 @@ class _RegisterState extends State<Register> {
     var downloadUrl = await taskSnapshot.ref.getDownloadURL();
     setState(() {
       imageUrl = downloadUrl.toString();
-      print(imageUrl);
     });
     return imageUrl;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fcm.getToken().then((token) => myToken = token);
   }
 
   @override
@@ -245,6 +253,7 @@ class _RegisterState extends State<Register> {
                           "name": username,
                           "email": email,
                           "ppurl": ppurl,
+                          "token": myToken
                         };
 
                         try {

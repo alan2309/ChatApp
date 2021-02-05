@@ -1,11 +1,10 @@
 import 'dart:async';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ChatApp/screens/chatScreen.dart';
 import 'package:ChatApp/screens/contacts.dart';
 import 'package:ChatApp/screens/login.dart';
 import 'package:ChatApp/screens/register.dart';
 import 'package:ChatApp/screens/shared_pref.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:ChatApp/screens/editProfile.dart';

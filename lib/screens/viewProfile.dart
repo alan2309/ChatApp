@@ -56,11 +56,6 @@ class _ViewProfileState extends State<ViewProfile> {
   TextEditingController repass = new TextEditingController();
   Brain brain = new Brain();
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -89,7 +84,6 @@ class _ViewProfileState extends State<ViewProfile> {
               final userName = loggedInUser;
               final url = img;
               email.text = sender;
-              print(sender);
               username.text = userName;
               urlLoad = url;
 

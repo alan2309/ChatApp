@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Brain {
+  final serverKey =
+      "ChatApp key";//alankritarya15
   getUser(String email) {
     return FirebaseFirestore.instance.collection("users").doc(email);
   }
@@ -31,6 +33,9 @@ class Brain {
   // deleteChat() {
   //   FirebaseFirestore.instance.collection("chats").doc().delete();
   // }
+  String getServerKey() {
+    return serverKey;
+  }
 
-  uploadProfile() {}
+  uploadProfilePic() {}
 }

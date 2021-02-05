@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 
 class MesssageTile extends StatelessWidget {
   final String msg, imgurl;
-  final String time;
+  final String time, date;
   final Alignment align;
   final Color color1;
   final Color color2;
@@ -13,6 +13,7 @@ class MesssageTile extends StatelessWidget {
       {this.imgurl,
       this.msg,
       this.time,
+      this.date,
       this.align,
       this.color1,
       this.color2,

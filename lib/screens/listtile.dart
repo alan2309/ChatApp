@@ -1,10 +1,35 @@
 import 'package:ChatApp/screens/chatScreen.dart';
 import 'package:flutter/material.dart';
 
-class Tile extends StatelessWidget {
+class Tile extends StatefulWidget {
   final String username;
-  final String sender, reciever, img;
-  Tile({this.username, this.sender, this.reciever, this.img});
+  final String sender, reciever, img, recieverToken;
+  Tile(
+      {this.username,
+      this.sender,
+      this.reciever,
+      this.img,
+      this.recieverToken});
+  @override
+  _TileState createState() => _TileState(
+      username: username,
+      reciever: reciever,
+      img: img,
+      sender: sender,
+      recieverToken: recieverToken);
+}
+
+class _TileState extends State<Tile> {
+  final String username;
+  final String sender, reciever, img, recieverToken;
+  String lastMsg;
+  _TileState(
+      {this.username,
+      this.sender,
+      this.reciever,
+      this.img,
+      this.recieverToken});
+
   @override
   Widget build(BuildContext context) {
     return FlatButton(
@@ -15,6 +40,7 @@ class Tile extends StatelessWidget {
             reciever: reciever,
             img: img,
             dispName: username,
+            recieverToken: recieverToken,
           );
         }));
       },
@@ -27,7 +53,7 @@ class Tile extends StatelessWidget {
         margin: EdgeInsets.symmetric(vertical: 10),
         child: ListTile(
           title: Text(username),
-          subtitle: Text('sub'),
+          subtitle: Text('Something'),
           leading: Container(
             height: 50,
             width: 50,

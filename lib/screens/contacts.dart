@@ -204,10 +204,12 @@ class _ContactsState extends State<Contacts> {
                                 userName.contains(
                                     searchTextEditingController.text)) {
                               final tile = Tile(
-                                  username: name.data()['name'],
-                                  sender: loggedInUser.email,
-                                  img: name.data()['ppurl'],
-                                  reciever: name.data()['email']);
+                                username: name.data()['name'],
+                                sender: loggedInUser.email,
+                                img: name.data()['ppurl'],
+                                reciever: name.data()['email'],
+                                recieverToken: name.data()['token'],
+                              );
                               contacts.add(tile);
                             } else {
                               storeData(

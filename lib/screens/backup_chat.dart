@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:ChatApp/screens/dateTile.dart';
 import 'package:http/http.dart' as http;
 import 'package:ChatApp/screens/viewProfile.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -89,19 +88,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return imageUrl;
   }
 
-  int day, month, year;
-  @override
-  void initState() {
-    super.initState();
-
-    DateTime latest = new DateTime.now();
-    day = latest.day;
-    month = latest.month;
-    year = latest.year;
-    print("...................................................");
-    print('day-$day,month-$month,year-$year');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -175,7 +161,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         .orderBy("time", descending: true)
                         .snapshots(),
                     builder: (context, snapshot) {
-                      int tempDay, tempMonth, tempYear;
                       if (!snapshot.hasData) {
                         return Center(
                           child: CircularProgressIndicator(
@@ -184,42 +169,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         );
                       }
                       final messages = snapshot.data.docs;
-                      List<Widget> messageBubbles = [];
+                      List<MesssageTile> messageBubbles = [];
                       for (var message in messages) {
-                        if (tempDay == null) {
-                          tempDay = message.data()['day'];
-                          tempMonth = message.data()['month'];
-                          tempYear = message.data()['year'];
-                        } else if (tempDay != message.data()['day'] &&
-                            month == tempMonth &&
-                            year == tempYear) {
-                          if (day == tempDay) {
-                            messageBubbles.add(DateT(special: "Today"));
-                            tempDay = message.data()['day'];
-                            tempMonth = message.data()['month'];
-                            tempYear = message.data()['year'];
-                          } else if (day == tempDay - 1) {
-                            messageBubbles.add(DateT(special: "Yesterday"));
-                            tempDay = message.data()['day'];
-                            tempMonth = message.data()['month'];
-                            tempYear = message.data()['year'];
-                          } else {
-                            messageBubbles.add(DateT(
-                                day: tempDay,
-                                month: tempMonth,
-                                year: tempYear));
-                            tempDay = message.data()['day'];
-                            tempMonth = message.data()['month'];
-                            tempYear = message.data()['year'];
-                          }
-                        } else if (tempYear != message.data()['year'] ||
-                            tempMonth != message.data()['month']) {
-                          messageBubbles.add(DateT(
-                              day: tempDay, month: tempMonth, year: tempYear));
-                          tempDay = message.data()['day'];
-                          tempMonth = message.data()['month'];
-                          tempYear = message.data()['year'];
-                        }
                         final messageText = message.data()['message'];
                         if (message.data()['sender'] == sender &&
                             message.data()['reciever'] == reciever) {
@@ -307,30 +258,8 @@ class _ChatScreenState extends State<ChatScreen> {
                               Icons.photo_camera,
                               size: 30,
                             ),
-                            onPressed: () async {
-                              await getImage(ImageSource.gallery);
-                              if (_image != null) {
-                                sendNotification(
-                                    token: recieverToken,
-                                    message: 'YOU RECIEVED AN IMAGE',
-                                    name: sender);
-                                String imgurl = await uploadPic(context);
-                                DateTime now = new DateTime.now();
-                                Map<String, dynamic> chat = {
-                                  "sender": sender,
-                                  "reciever": reciever,
-                                  "message": null,
-                                  "time": DateTime.now().millisecondsSinceEpoch,
-                                  "timedisp":
-                                      "${now.hour.toString()}:${now.minute.toString()}",
-                                  "year": year,
-                                  "imgurl": imgurl,
-                                  "day": day,
-                                  "month": month,
-                                };
-                                brain.uploadChats(chat);
-                                _image = null;
-                              }
+                            onPressed: () {
+                              getImage(ImageSource.gallery);
                             },
                           ),
                         ),
@@ -349,6 +278,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   token: recieverToken,
                                   message: messagecontrol.text,
                                   name: sender);
+                              _image = null;
                               DateTime now = new DateTime.now();
                               Map<String, dynamic> chat = {
                                 "sender": sender,
@@ -358,12 +288,27 @@ class _ChatScreenState extends State<ChatScreen> {
                                 "timedisp":
                                     "${now.hour.toString()}:${now.minute.toString()}",
                                 "imgurl": null,
-                                "year": year,
-                                "day": day,
-                                "month": month,
                               };
                               brain.uploadChats(chat);
                               messagecontrol.text = "";
+                            } else if (_image != null) {
+                              sendNotification(
+                                  token: recieverToken,
+                                  message: 'YOU RECIEVED AN IMAGE',
+                                  name: sender);
+                              String imgurl = await uploadPic(context);
+                              DateTime now = new DateTime.now();
+                              Map<String, dynamic> chat = {
+                                "sender": sender,
+                                "reciever": reciever,
+                                "message": null,
+                                "time": DateTime.now().millisecondsSinceEpoch,
+                                "timedisp":
+                                    "${now.hour.toString()}:${now.minute.toString()}",
+                                "imgurl": imgurl,
+                              };
+                              brain.uploadChats(chat);
+                              _image = null;
                             }
                           },
                           splashColor: Colors.red, // inkwell color
@@ -399,10 +344,7 @@ Future<Map<String, dynamic>> sendNotification(
     },
     body: jsonEncode(
       <String, dynamic>{
-        'notification': <String, dynamic>{
-          'body': message,
-          'title': name.replaceAll("@gmail.com", "")
-        },
+        'notification': <String, dynamic>{'body': message, 'title': name},
         'priority': 'high',
         'data': <String, dynamic>{
           'click_action': 'FLUTTER_NOTIFICATION_CLICK',

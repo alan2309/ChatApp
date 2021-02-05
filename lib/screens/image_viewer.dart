@@ -16,7 +16,7 @@ class _ImageViewerState extends State<ImageViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.black,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -28,7 +28,7 @@ class _ImageViewerState extends State<ImageViewer> {
           child: Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
-              color: Colors.transparent,
+              color: Colors.black87,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: InteractiveViewer(

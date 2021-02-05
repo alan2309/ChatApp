@@ -101,6 +101,7 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
+
     email.text = loggedInUser.email;
   }
 
@@ -162,22 +163,19 @@ class _ProfileState extends State<Profile> {
                                     fontWeight: FontWeight.w600)),
                           ),
                           Container(
-                              padding: EdgeInsets.all(20),
-                              width: MediaQuery.of(context).size.width / 2,
-                              height: MediaQuery.of(context).size.height / 4,
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.white, width: 5),
-                                borderRadius: BorderRadius.circular(5000),
-                                color: Colors.white,
-                              ),
+                            height: 200,
+                            width: 200,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
                               child: (_image == null)
                                   ? ((urlLoad != null)
                                       ? Image.network(urlLoad,
-                                          fit: BoxFit.fitHeight)
+                                          fit: BoxFit.scaleDown)
                                       : Image.asset('assets/images/man.png',
-                                          fit: BoxFit.fitHeight))
-                                  : Image.file(_image)),
+                                          fit: BoxFit.contain))
+                                  : Image.file(_image),
+                            ),
+                          ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -258,13 +256,21 @@ class _ProfileState extends State<Profile> {
                                           });
                                         },
                                         child: Center(
-                                            child: Text(
-                                          'Change Password?',
-                                          style: TextStyle(
-                                            fontSize: 23,
-                                            color: Colors.white,
-                                          ),
-                                        )),
+                                            child: _showPass
+                                                ? Text(
+                                                    'Cancel',
+                                                    style: TextStyle(
+                                                      fontSize: 23,
+                                                      color: Colors.white,
+                                                    ),
+                                                  )
+                                                : Text(
+                                                    'Change Password?',
+                                                    style: TextStyle(
+                                                      fontSize: 23,
+                                                      color: Colors.white,
+                                                    ),
+                                                  )),
                                       ),
                                     ),
                                     Visibility(
